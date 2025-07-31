@@ -14,3 +14,13 @@ discord_public_key = "YOUR_DISCORD_PUBLIC_KEY"
 # 複数ユーザーの場合はカンマで区切る
 # 例: user_ids = "123456789012345678,987654321098765432"
 user_ids = "YOUR_DISCORD_USER_ID"
+
+# Cloudflare設定
+# Cloudflare API Token（https://dash.cloudflare.com/profile/api-tokens から取得）
+cloudflare_api_token = "YOUR_CLOUDFLARE_API_TOKEN"
+
+# Cloudflare Account ID（ダッシュボードの右側に表示）
+cloudflare_account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
+
+# Cloudflare Zone ID（カスタムドメインを使用する場合のみ、オプション）
+cloudflare_zone_id = ""

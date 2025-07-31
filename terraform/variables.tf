@@ -44,3 +44,20 @@ variable "user_ids" {
   type        = string
   default     = ""
 }
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token"
+  type        = string
+  sensitive   = true
+}
+
+variable "cloudflare_account_id" {
+  description = "Cloudflare account ID"
+  type        = string
+}
+
+variable "cloudflare_zone_id" {
+  description = "Cloudflare zone ID (optional, for custom domain)"
+  type        = string
+  default     = ""
+}

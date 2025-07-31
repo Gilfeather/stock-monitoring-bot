@@ -24,6 +24,15 @@ format: ## Format code
 build: ## Build Lambda package
 	./scripts/build.sh
 
+build-discord: ## Build Discord Lambda package
+	./scripts/build_discord_lambda.sh
+
+build-cloudflare: ## Build Cloudflare Worker
+	./scripts/build_cloudflare_worker.sh
+
+deploy-cloudflare-dev: ## Deploy Cloudflare Worker to dev environment
+	./scripts/deploy_cloudflare_worker.sh dev
+
 deploy-dev: ## Deploy to development environment
 	./scripts/deploy.sh dev
 

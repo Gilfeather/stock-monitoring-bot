@@ -50,3 +50,5 @@ terraform/environments/*.tfvars  # 機密情報を含む環境変数ファイル
 
 # Deployment
 deployment/
+cloudflare-worker/node_modules/
+cloudflare-worker/terraform-dist/

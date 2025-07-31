@@ -85,16 +85,42 @@ class StockDataProvider:
         """
         symbol = symbol.strip().upper()
         
-        # 日本株の場合（4桁の数字）、.Tサフィックスを追加
-        if symbol.isdigit() and len(symbol) == 4:
-            return f"{symbol}.T"
-        
         # 既に.Tが付いている場合はそのまま
         if symbol.endswith('.T'):
             return symbol
+        
+        # 日本株の判定パターン
+        # 1. 4桁の数字（例：2433, 7203）
+        # 2. 3-4桁の数字 + 1文字のアルファベット（例：142A, 8697A）
+        # 3. REITなど特殊な形式
+        if self._is_japanese_stock_symbol(symbol):
+            return f"{symbol}.T"
             
-        # その他の場合はそのまま
+        # その他の場合（米国株など）はそのまま
         return symbol
+    
+    def _is_japanese_stock_symbol(self, symbol: str) -> bool:
+        """
+        日本株の銘柄コードかどうかを判定
+        
+        Args:
+            symbol: 銘柄コード
+            
+        Returns:
+            bool: 日本株の場合True
+        """
+        # 4桁の数字（例：2433, 7203）
+        if symbol.isdigit() and len(symbol) == 4:
+            return True
+        
+        # 3-4桁の数字 + 1文字のアルファベット（例：142A, 8697A）
+        if len(symbol) in [4, 5] and symbol[:-1].isdigit() and symbol[-1].isalpha():
+            return True
+        
+        # その他の日本株パターンがあれば追加
+        # 例：REITの特殊コードなど
+        
+        return False
     
     async def get_current_price(self, symbol: str) -> StockPrice:
         """

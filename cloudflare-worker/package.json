@@ -1,0 +1,19 @@
+{
+  "name": "discord-webhook-handler",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for Discord webhook handling",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --platform=neutral --target=es2022",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:prod": "wrangler deploy --env production"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.0.0",
+    "typescript": "^5.0.0",
+    "wrangler": "^3.0.0",
+    "esbuild": "^0.19.0"
+  }
+}

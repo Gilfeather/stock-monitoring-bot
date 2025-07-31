@@ -106,7 +106,6 @@ resource "aws_lambda_function" "stock_monitoring" {
   runtime         = "python3.13"
   timeout         = 30
   memory_size     = 1024
-  reserved_concurrent_executions = 1
   
   layers = [
     aws_lambda_layer_version.dependencies_basic.arn,

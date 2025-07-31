@@ -299,6 +299,188 @@ class InteractionsHandler:
             self.logger.error(f"ステータスコマンドエラー: {e}")
             return "❌ システムステータスの取得に失敗しました"
     
+    async def _handle_list_command(self) -> str:
+        """監視リストコマンドを処理"""
+        try:
+            from ..repositories.stock_repository import StockRepository
+            
+            # DynamoDBから監視中の銘柄を取得
+            stock_repo = StockRepository()
+            stocks = await stock_repo.get_all_stocks()
+            
+            if not stocks:
+                return "📋 **監視中の銘柄はありません**\n\n`/add <銘柄コード>` で銘柄を追加できます"
+            
+            result = f"📋 **監視中の銘柄一覧** ({len(stocks)}件)\n\n"
+            
+            for i, stock in enumerate(stocks, 1):
+                symbol = stock.symbol
+                name = getattr(stock, 'name', '') or symbol
+                last_price = getattr(stock, 'last_price', None)
+                
+                result += f"{i}. **{symbol}**"
+                if name != symbol:
+                    result += f" ({name})"
+                
+                if last_price:
+                    result += f" - ¥{last_price:,.2f}"
+                
+                result += "\n"
+            
+            result += f"\n💡 `/price <銘柄コード>` で個別の価格を確認できます"
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"監視リストコマンドエラー: {e}")
+            return "❌ 監視リストの取得に失敗しました"
+    
+    async def _handle_add_command(self, symbol: str, user_id: str) -> str:
+        """銘柄追加コマンドを処理"""
+        try:
+            from ..repositories.stock_repository import StockRepository
+            from ..services.data_provider import StockDataProvider
+            
+            # 銘柄コードを正規化
+            symbol = symbol.upper().strip()
+            
+            # 既に監視中かチェック
+            stock_repo = StockRepository()
+            existing_stock = await stock_repo.get_stock(symbol)
+            
+            if existing_stock:
+                return f"❌ **{symbol}** は既に監視リストに追加されています"
+            
+            # 株価データを取得して銘柄の有効性を確認
+            async with StockDataProvider() as data_provider:
+                try:
+                    stock_price = await data_provider.get_current_price(symbol)
+                    
+                    # 銘柄をDynamoDBに追加
+                    from ..models.stock import Stock
+                    from datetime import datetime, UTC
+                    
+                    stock = Stock(
+                        symbol=symbol,
+                        name=symbol,  # 銘柄名は後で更新可能
+                        last_price=stock_price.price,
+                        last_updated=datetime.now(UTC),
+                        added_by=user_id
+                    )
+                    
+                    await stock_repo.save_stock(stock)
+                    
+                    return f"✅ **{symbol}** を監視リストに追加しました\n現在価格: ¥{stock_price.price:,.2f}"
+                    
+                except Exception as e:
+                    return f"❌ **{symbol}** の株価取得に失敗しました: {str(e)}"
+            
+        except Exception as e:
+            self.logger.error(f"銘柄追加コマンドエラー: {e}")
+            return "❌ 銘柄の追加に失敗しました"
+    
+    async def _handle_remove_command(self, symbol: str, user_id: str) -> str:
+        """銘柄削除コマンドを処理"""
+        try:
+            from ..repositories.stock_repository import StockRepository
+            
+            symbol = symbol.upper().strip()
+            
+            stock_repo = StockRepository()
+            existing_stock = await stock_repo.get_stock(symbol)
+            
+            if not existing_stock:
+                return f"❌ **{symbol}** は監視リストに登録されていません"
+            
+            await stock_repo.delete_stock(symbol)
+            
+            return f"✅ **{symbol}** を監視リストから削除しました"
+            
+        except Exception as e:
+            self.logger.error(f"銘柄削除コマンドエラー: {e}")
+            return "❌ 銘柄の削除に失敗しました"
+    
+    async def _handle_price_command(self, symbol: str) -> str:
+        """価格取得コマンドを処理"""
+        try:
+            from ..services.data_provider import StockDataProvider
+            
+            symbol = symbol.upper().strip()
+            
+            async with StockDataProvider() as data_provider:
+                stock_price = await data_provider.get_current_price(symbol)
+                
+                result = f"📈 **{symbol}** の現在価格\n\n"
+                result += f"💰 **現在価格**: ¥{stock_price.price:,.2f}\n"
+                
+                if stock_price.open_price:
+                    result += f"🌅 **始値**: ¥{stock_price.open_price:,.2f}\n"
+                if stock_price.high_price:
+                    result += f"📈 **高値**: ¥{stock_price.high_price:,.2f}\n"
+                if stock_price.low_price:
+                    result += f"📉 **安値**: ¥{stock_price.low_price:,.2f}\n"
+                if stock_price.volume:
+                    result += f"📊 **出来高**: {stock_price.volume:,}\n"
+                
+                if stock_price.change_amount and stock_price.change_percent:
+                    change_emoji = "📈" if stock_price.change_amount > 0 else "📉"
+                    result += f"{change_emoji} **変動**: ¥{stock_price.change_amount:+,.2f} ({stock_price.change_percent:+.2f}%)\n"
+                
+                result += f"\n🕐 **取得時刻**: {stock_price.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}"
+                
+                return result
+                
+        except Exception as e:
+            self.logger.error(f"価格取得コマンドエラー: {e}")
+            return f"❌ **{symbol}** の価格取得に失敗しました: {str(e)}"
+    
+    async def _handle_alert_command(self, symbol: str, threshold: Optional[float], user_id: str) -> str:
+        """アラート設定コマンドを処理"""
+        try:
+            # TODO: アラート機能の実装
+            return f"🔔 **{symbol}** のアラート機能は開発中です"
+            
+        except Exception as e:
+            self.logger.error(f"アラート設定コマンドエラー: {e}")
+            return "❌ アラートの設定に失敗しました"
+    
+    async def _handle_chart_command(self, symbol: str, period: str) -> str:
+        """チャート表示コマンドを処理"""
+        try:
+            # TODO: チャート機能の実装
+            return f"📊 **{symbol}** のチャート機能は開発中です"
+            
+        except Exception as e:
+            self.logger.error(f"チャート表示コマンドエラー: {e}")
+            return "❌ チャートの表示に失敗しました"
+    
+    async def _handle_help_command(self) -> str:
+        """ヘルプコマンドを処理"""
+        try:
+            result = "📚 **株価監視ボット - コマンド一覧**\n\n"
+            result += "**📋 監視管理**\n"
+            result += "• `/list` - 監視中の銘柄一覧を表示\n"
+            result += "• `/add <銘柄コード>` - 銘柄を監視リストに追加\n"
+            result += "• `/remove <銘柄コード>` - 銘柄を監視リストから削除\n\n"
+            result += "**📈 価格情報**\n"
+            result += "• `/price <銘柄コード>` - 現在の株価を取得\n"
+            result += "• `/chart <銘柄コード>` - 株価チャートを表示（開発中）\n\n"
+            result += "**🔔 アラート**\n"
+            result += "• `/alert <銘柄コード> <閾値>` - 価格アラートを設定（開発中）\n\n"
+            result += "**⚙️ システム**\n"
+            result += "• `/status` - システムの動作状況を確認\n"
+            result += "• `/help` - このヘルプを表示\n\n"
+            result += "**💡 使用例**\n"
+            result += "• `/add 2433` - 博報堂DYホールディングスを監視\n"
+            result += "• `/price AAPL` - Appleの株価を取得\n"
+            result += "• `/list` - 監視中の全銘柄を表示"
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"ヘルプコマンドエラー: {e}")
+            return "❌ ヘルプの表示に失敗しました"
+    
     async def _handle_add_command(self, symbol: str, user_id: str) -> str:
         """銘柄追加コマンドを処理"""
         try:
