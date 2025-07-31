@@ -1,0 +1,16 @@
+environment = "dev"
+
+# 以下の値は実際の値に置き換えてください
+# Discord Webhook URL（Discord サーバーの設定から取得）
+discord_webhook_url = "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN"
+
+# Alpha Vantage API Key（https://www.alphavantage.co/support/#api-key から取得）
+alpha_vantage_api_key = "YOUR_ALPHA_VANTAGE_API_KEY"
+
+# Discord Public Key（Discord Developer Portal から取得）
+discord_public_key = "YOUR_DISCORD_PUBLIC_KEY"
+
+# P&L通知対象ユーザー（Discord User IDをカンマ区切りで指定）
+# 複数ユーザーの場合はカンマで区切る
+# 例: user_ids = "123456789012345678,987654321098765432"
+user_ids = "YOUR_DISCORD_USER_ID"

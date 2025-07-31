@@ -1,0 +1,49 @@
+{
+  "monitoring": {
+    "interval_seconds": 60,
+    "max_stocks": 100,
+    "alert_cooldown_minutes": 30
+  },
+  "alerts": {
+    "default_volume_threshold_multiplier": 2.0,
+    "price_change_threshold_percent": 5.0,
+    "enable_volume_alerts": true,
+    "enable_price_alerts": true
+  },
+  "discord": {
+    "max_message_length": 2000,
+    "retry_attempts": 3,
+    "retry_delay_seconds": 5,
+    "admin_users": ["USER_ID_1", "USER_ID_2"],
+    "allowed_channels": ["CHANNEL_ID_1", "CHANNEL_ID_2"]
+  },
+  "portfolio": {
+    "enable_pnl_reports": true,
+    "pnl_report_schedule": "0 9 * * *",
+    "max_holdings_per_portfolio": 50,
+    "default_portfolio_name": "メインポートフォリオ"
+  },
+  "data_providers": {
+    "primary": "yahoo_finance",
+    "fallback": "alpha_vantage",
+    "request_timeout_seconds": 30,
+    "max_retries": 3
+  },
+  "dynamodb": {
+    "read_capacity_units": 5,
+    "write_capacity_units": 5,
+    "batch_size": 25,
+    "max_retries": 3,
+    "retry_delay_seconds": 1
+  },
+  "aws": {
+    "region": "ap-northeast-1",
+    "lambda_timeout_seconds": 300,
+    "lambda_memory_mb": 512
+  },
+  "logging": {
+    "level": "INFO",
+    "service_name": "stock-monitoring-bot",
+    "enable_structured_logging": true
+  }
+}

@@ -1,0 +1,52 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environment variables
+.env
+config/config.json
+
+# Logs
+logs/*.log
+logs/*.txt
+
+# Database
+*.db
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+.kiro/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# MyPy
+.mypy_cache/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+terraform/environments/*.tfvars  # 機密情報を含む環境変数ファイルを除外
+
+# Deployment
+deployment/

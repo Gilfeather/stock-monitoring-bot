@@ -1,0 +1,39 @@
+[package]
+name = "stock-monitoring-bot"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "discord_handler"
+path = "src/bin/discord_handler.rs"
+
+[[bin]]
+name = "stock_monitor"
+path = "src/bin/stock_monitor.rs"
+
+[[bin]]
+name = "pnl_report"
+path = "src/bin/pnl_report.rs"
+
+[dependencies]
+lambda_runtime = "0.8"
+# lambda-web = "0.2"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.11", features = ["json", "gzip"] }
+aws-sdk-dynamodb = "1.0"
+aws-sdk-ssm = "1.0"
+aws-config = "1.0"
+ed25519-dalek = { version = "2.0", features = ["rand_core"] }
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"

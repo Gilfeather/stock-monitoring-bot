@@ -1,0 +1,14 @@
+Discord Interaction Endpoint URL検証
+
+現在のAPI Gateway URL:
+https://80ru5yrvb3.execute-api.ap-northeast-1.amazonaws.com/dev/interactions
+
+確認事項:
+1. Discord Developer Portal (https://discord.com/developers/applications) で設定されているInteraction Endpoint URLが上記と一致しているか
+2. Discord botのApplication IDとPublic Keyが正しいか
+3. Discordからのリクエストが実際にAPI Gatewayに届いているかCloudWatch Logsで確認
+
+テスト結果:
+- API Gatewayエンドポイントは正常に動作 ✅
+- 署名検証エラー（401）が正しく返される ✅
+- 問題: Discordからのリクエスト自体が届いていない可能性
