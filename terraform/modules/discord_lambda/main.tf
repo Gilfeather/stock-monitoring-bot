@@ -116,6 +116,8 @@ resource "aws_lambda_function" "discord_processor" {
       DYNAMODB_TABLE_STOCKS = "${var.project_name}-stocks-${var.environment}"
       DYNAMODB_TABLE_ALERTS = "${var.project_name}-alerts-${var.environment}"
       DYNAMODB_TABLE_HISTORY = "${var.project_name}-history-${var.environment}"
+      DYNAMODB_TABLE_PORTFOLIOS = "${var.project_name}-portfolios-${var.environment}"
+      DYNAMODB_TABLE_HOLDINGS = "${var.project_name}-holdings-${var.environment}"
       DISCORD_WEBHOOK_PARAMETER = var.discord_webhook_parameter_name
       ALPHA_VANTAGE_API_KEY_PARAMETER = var.alpha_vantage_api_key_parameter_name
       USER_IDS_PARAMETER = var.target_users_parameter_name
