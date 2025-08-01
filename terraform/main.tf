@@ -85,19 +85,6 @@ resource "aws_ssm_parameter" "user_ids" {
   }
 }
 
-# Lambda関数
-module "lambda" {
-  source = "./modules/lambda"
-
-  environment                          = var.environment
-  project_name                         = var.project_name
-  dynamodb_table_arns                  = module.dynamodb.table_arns
-  discord_webhook_parameter_name       = aws_ssm_parameter.discord_webhook_url.name
-  alpha_vantage_api_key_parameter_name = aws_ssm_parameter.alpha_vantage_api_key.name
-  discord_public_key_parameter_name    = aws_ssm_parameter.discord_public_key.name
-  target_users_parameter_name          = aws_ssm_parameter.user_ids.name
-  api_gateway_execution_arn            = module.api_gateway.execution_arn
-}
 
 # SQS for Discord webhook processing
 module "sqs" {
@@ -119,8 +106,6 @@ module "discord_lambda" {
   discord_webhook_parameter_name       = aws_ssm_parameter.discord_webhook_url.name
   alpha_vantage_api_key_parameter_name = aws_ssm_parameter.alpha_vantage_api_key.name
   target_users_parameter_name          = aws_ssm_parameter.user_ids.name
-  lambda_basic_layer_arn               = module.lambda.basic_layer_arn
-  lambda_data_layer_arn                = module.lambda.data_layer_arn
 }
 
 # Cloudflare Worker for Discord webhook handling
@@ -136,13 +121,4 @@ module "cloudflare_worker" {
   aws_access_key_id       = module.sqs.cloudflare_access_key_id
   aws_secret_access_key   = module.sqs.cloudflare_secret_access_key
   sqs_queue_url           = module.sqs.queue_url
-}
-
-# API Gateway for Discord Interactions (legacy)
-module "api_gateway" {
-  source = "./modules/api_gateway"
-
-  environment         = var.environment
-  project_name        = var.project_name
-  lambda_function_arn = module.lambda.function_arn
 }

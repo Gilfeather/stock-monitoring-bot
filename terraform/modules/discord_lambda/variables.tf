@@ -39,12 +39,3 @@ variable "target_users_parameter_name" {
   type        = string
 }
 
-variable "lambda_basic_layer_arn" {
-  description = "ARN of the Lambda Basic Layer"
-  type        = string
-}
-
-variable "lambda_data_layer_arn" {
-  description = "ARN of the Lambda Data Layer"
-  type        = string
-}
