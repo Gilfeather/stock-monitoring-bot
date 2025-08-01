@@ -88,8 +88,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # 簡単なレスポンス
             responses = {
                 'list': '📊 監視銘柄:\n• AAPL\n• TSLA\n• MSFT',
-                'add': f'✅ 銘柄を追加しました',
-                'remove': f'✅ 銘柄を削除しました',
+                'add': '✅ 銘柄を追加しました',
+                'remove': '✅ 銘柄を削除しました',
                 'alert': '🔔 アラートを設定しました',
                 'chart': '📈 チャート機能は準備中です'
             }

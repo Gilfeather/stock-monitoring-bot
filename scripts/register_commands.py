@@ -117,6 +117,42 @@ commands = [
     {
         "name": "help",
         "description": "使用可能なコマンドの一覧とヘルプを表示"
+    },
+    {
+        "name": "portfolio",
+        "description": "ポートフォリオ管理",
+        "options": [
+            {
+                "name": "action",
+                "description": "実行するアクション",
+                "type": 3,  # STRING
+                "required": True,
+                "choices": [
+                    {"name": "add", "value": "add"},
+                    {"name": "remove", "value": "remove"},
+                    {"name": "list", "value": "list"},
+                    {"name": "pnl", "value": "pnl"}
+                ]
+            },
+            {
+                "name": "symbol",
+                "description": "株式シンボル（add/remove時に必要）",
+                "type": 3,  # STRING
+                "required": False
+            },
+            {
+                "name": "quantity",
+                "description": "株数（add時に必要）",
+                "type": 4,  # INTEGER
+                "required": False
+            },
+            {
+                "name": "price",
+                "description": "取得価格（add時に必要）",
+                "type": 10,  # NUMBER
+                "required": False
+            }
+        ]
     }
 ]
 
@@ -139,8 +175,9 @@ def register_commands():
                 timeout=10
             )
             
-            if response.status_code == 201:
-                print(f"✅ /{command['name']} 登録成功")
+            if response.status_code in [200, 201]:
+                status_text = "登録成功" if response.status_code == 201 else "更新成功"
+                print(f"✅ /{command['name']} {status_text}")
                 success_count += 1
             elif response.status_code == 429:
                 # レートリミット発生
@@ -156,8 +193,9 @@ def register_commands():
                     timeout=10
                 )
                 
-                if response.status_code == 201:
-                    print(f"✅ /{command['name']} 登録成功（リトライ後）")
+                if response.status_code in [200, 201]:
+                    status_text = "登録成功" if response.status_code == 201 else "更新成功"
+                    print(f"✅ /{command['name']} {status_text}（リトライ後）")
                     success_count += 1
                 else:
                     print(f"❌ /{command['name']} 登録失敗（リトライ後）: {response.status_code}")

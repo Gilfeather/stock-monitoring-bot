@@ -28,7 +28,7 @@ class StockRepository(BaseRepository):
         try:
             async with self._get_async_client() as client:
                 # デバッグ用ログ
-                logger.error(f"=== DEBUG CREATE STOCK ===")
+                logger.error("=== DEBUG CREATE STOCK ===")
                 logger.error(f"Symbol: {stock.symbol}")
                 logger.error(f"is_active type: {type(stock.is_active)}, value: {stock.is_active}")
                 
