@@ -38,8 +38,3 @@ output "discord_lambda_function_name" {
   value       = module.discord_lambda.function_name
 }
 
-# API Gateway outputs (legacy)
-output "api_gateway_url" {
-  description = "API Gateway URL"
-  value       = module.api_gateway.invoke_url
-}

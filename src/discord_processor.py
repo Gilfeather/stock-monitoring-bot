@@ -4,10 +4,7 @@ SQSからDiscord Webhookメッセージを受信して処理
 """
 import json
 import logging
-import os
-from typing import Dict, Any, List
-import boto3
-from botocore.exceptions import ClientError
+from typing import Dict, Any
 
 # 既存のハンドラーをインポート
 from stock_monitoring_bot.handlers.interactions_handler import InteractionsHandler
@@ -36,7 +33,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         try:
             # SQSメッセージからDiscord webhookデータを取得
             message_body = record['body']
-            receipt_handle = record['receiptHandle']
             
             logger.info(f"Processing message: {record.get('messageId', 'unknown')}")
             

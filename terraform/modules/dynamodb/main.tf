@@ -77,3 +77,59 @@ resource "aws_dynamodb_table" "history" {
     Environment = var.environment
   }
 }
+
+# ポートフォリオテーブル
+resource "aws_dynamodb_table" "portfolios" {
+  name           = "${var.project_name}-portfolios-${var.environment}"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "portfolio_id"
+
+  attribute {
+    name = "portfolio_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "user_id"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "user_id-index"
+    hash_key        = "user_id"
+    projection_type = "ALL"
+  }
+
+  tags = {
+    Name        = "${var.project_name}-portfolios-${var.environment}"
+    Environment = var.environment
+  }
+}
+
+# ポートフォリオ保有銘柄テーブル
+resource "aws_dynamodb_table" "holdings" {
+  name           = "${var.project_name}-holdings-${var.environment}"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "holding_id"
+
+  attribute {
+    name = "holding_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "portfolio_id"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "portfolio_id-index"
+    hash_key        = "portfolio_id"
+    projection_type = "ALL"
+  }
+
+  tags = {
+    Name        = "${var.project_name}-holdings-${var.environment}"
+    Environment = var.environment
+  }
+}

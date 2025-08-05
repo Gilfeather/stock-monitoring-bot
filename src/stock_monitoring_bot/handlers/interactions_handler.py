@@ -259,6 +259,12 @@ class InteractionsHandler:
             elif command_name == 'help':
                 return await self._handle_help_command()
             
+            elif command_name == 'portfolio':
+                action = self._get_option_value(options, 'action')
+                if not action:
+                    return '❌ アクションを指定してください'
+                return await self._handle_portfolio_command(action, options, user_id)
+            
             else:
                 return f'❌ 不明なコマンド: {command_name}'
                 
@@ -285,7 +291,7 @@ class InteractionsHandler:
             region = os.environ.get('AWS_REGION', 'unknown')
             
             result = "🔍 **システムステータス**\n\n"
-            result += f"⚙️ **Lambda関数**: ✅ 正常動作中\n"
+            result += "⚙️ **Lambda関数**: ✅ 正常動作中\n"
             result += f"🌍 **環境**: {environment}\n"
             result += f"📍 **リージョン**: {region}\n"
             result += f"🔧 **関数名**: {function_name}\n"
@@ -327,7 +333,7 @@ class InteractionsHandler:
                 
                 result += "\n"
             
-            result += f"\n💡 `/price <銘柄コード>` で個別の価格を確認できます"
+            result += "\n💡 `/price <銘柄コード>` で個別の価格を確認できます"
             
             return result
             
@@ -467,19 +473,73 @@ class InteractionsHandler:
             result += "• `/chart <銘柄コード>` - 株価チャートを表示（開発中）\n\n"
             result += "**🔔 アラート**\n"
             result += "• `/alert <銘柄コード> <閾値>` - 価格アラートを設定（開発中）\n\n"
+            result += "**💼 ポートフォリオ**\n"
+            result += "• `/portfolio action:add symbol:<銘柄> quantity:<株数> price:<価格>` - 保有銘柄を追加\n"
+            result += "• `/portfolio action:remove symbol:<銘柄>` - 保有銘柄を削除\n"
+            result += "• `/portfolio action:list` - ポートフォリオ一覧を表示\n"
+            result += "• `/portfolio action:pnl` - 含み損益を表示\n\n"
             result += "**⚙️ システム**\n"
             result += "• `/status` - システムの動作状況を確認\n"
             result += "• `/help` - このヘルプを表示\n\n"
             result += "**💡 使用例**\n"
             result += "• `/add 2433` - 博報堂DYホールディングスを監視\n"
             result += "• `/price AAPL` - Appleの株価を取得\n"
-            result += "• `/list` - 監視中の全銘柄を表示"
+            result += "• `/list` - 監視中の全銘柄を表示\n"
+            result += "• `/portfolio action:add symbol:7203 quantity:100 price:2500` - トヨタ100株を追加\n"
+            result += "• `/portfolio action:pnl` - 含み損益を確認"
             
             return result
             
         except Exception as e:
             self.logger.error(f"ヘルプコマンドエラー: {e}")
             return "❌ ヘルプの表示に失敗しました"
+    
+    async def _handle_portfolio_command(self, action: str, options: list, user_id: str) -> str:
+        """ポートフォリオコマンドを処理"""
+        try:
+            from ..services.portfolio_service import PortfolioCommandHandler, PortfolioService
+            from ..services.data_provider import StockDataProvider
+            from decimal import Decimal
+            
+            # ポートフォリオサービスを初期化
+            data_provider = StockDataProvider()
+            portfolio_service = PortfolioService(data_provider)
+            portfolio_handler = PortfolioCommandHandler(portfolio_service)
+            
+            if action == 'add':
+                symbol = self._get_option_value(options, 'symbol')
+                quantity = self._get_option_value(options, 'quantity')
+                price = self._get_option_value(options, 'price')
+                
+                if not symbol or not quantity or not price:
+                    return '❌ symbol、quantity、priceを全て指定してください\n例: `/portfolio action:add symbol:7203 quantity:100 price:2500`'
+                
+                try:
+                    quantity_int = int(quantity)
+                    price_decimal = Decimal(str(price))
+                    return await portfolio_handler.handle_portfolio_add_command(user_id, symbol.upper(), quantity_int, price_decimal)
+                except ValueError:
+                    return '❌ quantityは整数、priceは数値で指定してください'
+            
+            elif action == 'remove':
+                symbol = self._get_option_value(options, 'symbol')
+                if not symbol:
+                    return '❌ symbolを指定してください\n例: `/portfolio action:remove symbol:7203`'
+                
+                return await portfolio_handler.handle_portfolio_remove_command(user_id, symbol.upper())
+            
+            elif action == 'list':
+                return await portfolio_handler.handle_portfolio_list_command(user_id)
+            
+            elif action == 'pnl':
+                return await portfolio_handler.handle_portfolio_pnl_command(user_id)
+            
+            else:
+                return f'❌ 不明なアクション: {action}\n利用可能: add, remove, list, pnl'
+            
+        except Exception as e:
+            self.logger.error(f"ポートフォリオコマンドエラー: {e}")
+            return "❌ ポートフォリオコマンドの処理中にエラーが発生しました"
     
     async def _handle_add_command(self, symbol: str, user_id: str) -> str:
         """銘柄追加コマンドを処理"""
@@ -556,11 +616,11 @@ class InteractionsHandler:
             import os
             
             # デバッグ情報をログ出力
-            self.logger.error(f"=== DEBUG LIST COMMAND START ===")
+            self.logger.error("=== DEBUG LIST COMMAND START ===")
             self.logger.error(f"Environment: {os.getenv('ENVIRONMENT', 'NOT_SET')}")
             self.logger.error(f"DynamoDB Table Stocks: {os.getenv('DYNAMODB_TABLE_STOCKS', 'NOT_SET')}")
             self.logger.error(f"AWS Region: {os.getenv('AWS_REGION', 'NOT_SET')}")
-            self.logger.error(f"=== DEBUG LIST COMMAND ABOUT TO CALL REPO ===")
+            self.logger.error("=== DEBUG LIST COMMAND ABOUT TO CALL REPO ===")
             
             # DynamoDBから監視リスト取得
             stock_repo = StockRepository()
@@ -632,6 +692,7 @@ class InteractionsHandler:
         try:
             from ..repositories.stock_repository import StockRepository
             from decimal import Decimal
+            import decimal
             
             symbol = symbol.upper().strip()
             if not symbol:
@@ -642,7 +703,7 @@ class InteractionsHandler:
             
             try:
                 threshold_value = Decimal(str(threshold))
-            except:
+            except (ValueError, TypeError, decimal.InvalidOperation):
                 return "❌ 有効な閾値を入力してください"
             
             # 監視対象の銘柄を取得または作成
@@ -714,7 +775,7 @@ class InteractionsHandler:
                     
                     return result
                 else:
-                    return f"❌ チャートデータの処理に失敗しました"
+                    return "❌ チャートデータの処理に失敗しました"
                 
         except Exception as e:
             self.logger.error(f"チャートコマンドエラー: {e}")
