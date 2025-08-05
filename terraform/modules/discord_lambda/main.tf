@@ -64,7 +64,10 @@ resource "aws_iam_role_policy" "discord_lambda_dynamodb_policy" {
           "dynamodb:Query",
           "dynamodb:Scan"
         ]
-        Resource = values(var.dynamodb_table_arns)
+        Resource = concat(
+          values(var.dynamodb_table_arns),
+          [for arn in values(var.dynamodb_table_arns) : "${arn}/*"]
+        )
       }
     ]
   })
