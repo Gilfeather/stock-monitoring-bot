@@ -9,9 +9,22 @@ wheels/
 # Virtual environments
 .venv
 
-# Environment variables
+# Environment variables and secrets
 .env
+.env.*
+!.env.template
+!.env.example
 config/config.json
+!config/config.json.template
+*.secret
+secrets/
+.secrets/
+credentials/
+.credentials/
+keys/
+.keys/
+tokens/
+.tokens/
 
 # Logs
 logs/*.log
@@ -46,7 +59,14 @@ htmlcov/
 .terraform/
 .terraform.lock.hcl
 *.tfplan
-terraform/environments/*.tfvars  # 機密情報を含む環境変数ファイルを除外
+*.tfvars
+!*.tfvars.template
+terraform.tfvars
+**/terraform.tfvars
+**/environments/*.tfvars
+terraform/environments/dev.tfvars
+terraform/environments/prod.tfvars
+terraform/environments/staging.tfvars
 
 # Deployment
 deployment/

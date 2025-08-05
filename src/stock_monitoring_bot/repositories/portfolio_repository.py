@@ -5,7 +5,7 @@ import logging
 import os
 from datetime import datetime, UTC
 from decimal import Decimal
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 import boto3
 from botocore.exceptions import ClientError
 
@@ -78,7 +78,6 @@ class PortfolioRepository:
             response = self.portfolios_table.query(
                 IndexName='user_id-index',
                 KeyConditionExpression='user_id = :user_id',
-                ExpressionAttributeValues={':user_id': user_id},
                 FilterExpression='is_active = :active',
                 ExpressionAttributeValues={
                     ':user_id': user_id,
